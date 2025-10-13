@@ -1,0 +1,5 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+# Comando para rodar o linter de mensagem de commit
+npx git-commit-msg-linter
