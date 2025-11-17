@@ -1,35 +1,23 @@
--- Criação da tabela users
-CREATE TABLE IF NOT EXISTS users (
-    id SERIAL PRIMARY KEY,
+CREATE TABLE IF NOT EXISTS users(
+    ID UUID PRIMARY KEY,
     first_name VARCHAR(50) NOT NULL,
     last_name VARCHAR(50) NOT NULL,
-    email VARCHAR(255) NOT NULL UNIQUE,
-    password VARCHAR(255) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    email VARCHAR(100) NOT NULL UNIQUE,
+    password VARCHAR(100) NOT NULL
 );
 
--- Criação do tipo de transação
-DO $$ BEGIN
-    CREATE TYPE transaction_type AS ENUM ('EARNING', 'EXPENSE', 'INVESTMENT');
-EXCEPTION
-    WHEN duplicate_object THEN null;
-END $$;
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'transaction_type') THEN
+        CREATE TYPE transaction_type AS ENUM ('EARNING', 'EXPENSE', 'INVESTMENT');
+    END IF;
+END$$;
 
--- Criação da tabela transactions
-CREATE TABLE IF NOT EXISTS transactions (
-    id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    name VARCHAR(50) NOT NULL,
+CREATE TABLE IF NOT EXISTS transactions(
+    ID UUID PRIMARY KEY,
+    user_id UUID REFERENCES users(ID) ON DELETE CASCADE NOT NULL,
+    name VARCHAR(100) NOT NULL,
     date DATE NOT NULL,
     amount NUMERIC(10, 2) NOT NULL,
-    type transaction_type NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    type transaction_type NOT NULL
 );
-
--- Inserir dados de exemplo
-INSERT INTO users (name, email, password) VALUES 
-('João Silva', 'joao@email.com', 'senha123'),
-('Maria Santos', 'maria@email.com', 'senha456')
-ON CONFLICT (email) DO NOTHING;

@@ -1,27 +1,19 @@
-import 'dotenv/config';
-import express from 'express';
-import { PostgresHelper } from './src/db/postgres/helper.js';
+import 'dotenv/config.js'
+import express from 'express'
+import { CreateUserController } from './src/controllers/create-user.js'
 
-const app = express();
+const app = express()
 
-app.use(express.json());
+app.use(express.json())
 
-app.get('/api/users', async (req, res) => {
-  try {
-    const results = await PostgresHelper.query('SELECT * FROM users');
-   res.send(json.stringify(results));
-  } catch (error) {
-    console.error('Erro ao executar query:', error);
-    res.status(500).send('Erro interno do servidor');
-  }
-});
+app.post('/api/users', async (request, response) => {
+    const createUserController = new CreateUserController()
 
-app.post('/api/users', async (req, res) => {
-  console.log(req.body);
-  console.log(req.headers);
-  res.status(201).send('Usuário criado com sucesso');
-});
+    const { statusCode, body } = await createUserController.execute(request)
 
-app.listen(process.env.PORT, () => {
-  console.log(`Server is running on port ${process.env.PORT}`);
-});
+    response.status(statusCode).send(body)
+})
+
+app.listen(process.env.PORT, () =>
+    console.log(`Listening on port ${process.env.PORT}`),
+)

@@ -1,31 +1,30 @@
-import { v4 as uuidv4 } from 'uuid';
-import bcrypt from 'bcrypt';
-import { PostgresCreateUserRepository } from '../repositories/postgres/create-user';
+import { v4 as uuidv4 } from 'uuid'
+import bcrypt from 'bcrypt'
 
-export class CreateUserUseCase { 
+import { PostgresCreateUserRepository } from '../repositories/postgres/create-user.js'
+
+export class CreateUserUseCase {
     async execute(createUserParams) {
-        //todo: implementar a lógica de criação de usuário
+        // TODO: verificar se o e-mail já está em uso
 
-        //gerar um id único para o usuário
-        const userId = uuidv4();
+        // gerar ID do usuário
+        const userId = uuidv4()
 
-        //criptografar a senha do usuário
-        const hashedPassword = await bcrypt.hash(createUserParams.password, 10);
+        // criptografar a senha
+        const hashedPassword = await bcrypt.hash(createUserParams.password, 10)
 
-        //inserir o usuário no banco de dados
-        const user = await PostgresCreateUserRepository.execute({
+        // inserir o usuário no banco de dados
+        const user = {
+            ...createUserParams,
             id: userId,
-            first_name: createUserParams.first_name,
-            last_name: createUserParams.last_name,
-            email: createUserParams.email,
-            password: hashedPassword
-        });
-        //chamar o repositório para criar o usuário
-        const postgresCreateUserRepository = new PostgresCreateUserRepository();
+            password: hashedPassword,
+        }
 
-        const createdUser = await postgresCreateUserRepository.execute(user);
+        // chamar o repositório
+        const postgresCreateUserRepository = new PostgresCreateUserRepository()
 
-        //retornar o usuário criado
-        return createdUser;
+        const createdUser = await postgresCreateUserRepository.execute(user)
+
+        return createdUser
     }
 }
